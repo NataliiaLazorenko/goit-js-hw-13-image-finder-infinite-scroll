@@ -6,7 +6,6 @@ import showNotification from './js/notification';
 import showLargePhoto from './js/show-large-photo';
 
 refs.searchForm.addEventListener('submit', searchFormSubmitHandler);
-refs.loadMoreBtn.addEventListener('click', fetchPhotos);
 refs.photosGallery.addEventListener('click', showLargePhoto);
 
 function searchFormSubmitHandler(event) {
@@ -22,8 +21,6 @@ function searchFormSubmitHandler(event) {
 }
 
 function fetchPhotos() {
-  refs.loadMoreBtn.classList.add('is-hidden');
-
   apiService.fetchPhotos().then(hits => {
     if (refs.photosGallery.innerHTML !== '' && hits.length === 0) {
       showNotification.showInfoMessage();
@@ -35,8 +32,7 @@ function fetchPhotos() {
 
     updatePhotosMarkup(hits);
     showNotification.showSuccessMessage();
-    refs.loadMoreBtn.classList.remove('is-hidden');
-    scrollPage();
+    observer.observe(refs.photosGallery.lastElementChild);
   });
 }
 
@@ -44,9 +40,19 @@ function clearGalleryContainer() {
   refs.photosGallery.innerHTML = '';
 }
 
-function scrollPage() {
-  scrollTo({
-    top: document.documentElement.offsetHeight,
-    behavior: 'smooth',
+const options = {
+  rootMargin: '-100px',
+};
+
+const observer = new IntersectionObserver(onEntry, options);
+
+function onEntry(entries, observer) {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const image = entry.target;
+      observer.unobserve(image);
+
+      fetchPhotos();
+    }
   });
 }

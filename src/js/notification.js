@@ -19,8 +19,7 @@ function showNotification(message, type) {
 }
 
 function showSuccessMessage() {
-  const successMessage =
-    "Photos uploaded. To get more, click 'Load more' button";
+  const successMessage = 'Photos uploaded. To get more, scroll the page';
   const type = 'success';
   showNotification(successMessage, type);
 }
